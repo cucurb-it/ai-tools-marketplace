@@ -1,0 +1,31 @@
+{
+  "name": "cucurb-it-ai-tools",
+  "owner": {
+    "name": "Cucurb IT BV"
+  },
+  "metadata": {
+    "description": "AI Tools Marketplace — production-ready skills, agents, and workflows for AI-augmented software development",
+    "version": "26.218.1"
+  },
+  "plugins": [
+    {
+      "name": "implementation-review",
+      "source": "./implementation-review",
+      "description": "AI-augmented code review skill. Reviews implementations against ANALYSIS documents, project conventions, and security best practices. Produces structured Review Reports for human and AI consumption.",
+      "version": "26.218.1",
+      "author": {
+        "name": "Cucurb IT BV"
+      },
+      "license": "MIT",
+      "keywords": [
+        "review",
+        "code-review",
+        "security",
+        "quality",
+        "compliance"
+      ],
+      "category": "quality-assurance",
+      "strict": false
+    }
+  ]
+}

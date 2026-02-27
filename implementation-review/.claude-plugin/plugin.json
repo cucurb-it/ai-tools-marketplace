@@ -1,0 +1,20 @@
+{
+  "name": "implementation-review",
+  "version": "26.218.1",
+  "description": "AI-augmented code review skill. Reviews implementations against ANALYSIS documents, project conventions, and security best practices.",
+  "author": {
+    "name": "Cucurb IT BV"
+  },
+  "homepage": "https://github.com/cucurb-it/ai-tools-marketplace",
+  "repository": "https://github.com/cucurb-it/ai-tools-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "review",
+    "code-review",
+    "security",
+    "quality",
+    "compliance",
+    "validation"
+  ],
+  "skills": ["./skills/"]
+}

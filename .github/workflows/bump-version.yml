@@ -1,0 +1,90 @@
+name: Bump Version
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/**'
+      - 'README.md'
+      - '*/README.md'
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read current version from marketplace
+        id: current
+        run: |
+          VERSION=$(jq -r '.metadata.version' .claude-plugin/marketplace.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Bump version (date-based: YY.MDD.N)
+        id: bump
+        run: |
+          CURRENT="${{ steps.current.outputs.version }}"
+          
+          # Extract date prefix (YY.MDD) - month without zero, day with zero
+          YEAR=$(date +%y)
+          MONTH=$(date +%-m)  # %-m removes leading zero from month
+          DAY=$(date +%d)     # %d keeps leading zero on day
+          DATE_PREFIX="$YEAR.$MONTH$DAY"
+          
+          # Check if current version starts with today's date
+          if [[ "$CURRENT" == "$DATE_PREFIX."* ]]; then
+            # Extract increment and bump it
+            INCREMENT=$(echo $CURRENT | cut -d. -f3)
+            NEW_INCREMENT=$((INCREMENT + 1))
+          else
+            # New date, reset increment to 1
+            NEW_INCREMENT=1
+          fi
+          
+          NEW_VERSION="$DATE_PREFIX.$NEW_INCREMENT"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION (previous: $CURRENT)"
+
+      - name: Update marketplace.json
+        run: |
+          NEW_VERSION="${{ steps.bump.outputs.new_version }}"
+          
+          # Update marketplace metadata version
+          jq --arg v "$NEW_VERSION" '.metadata.version = $v' .claude-plugin/marketplace.json > tmp.json
+          mv tmp.json .claude-plugin/marketplace.json
+          
+          # Update all plugin versions in marketplace
+          jq --arg v "$NEW_VERSION" '.plugins[].version = $v' .claude-plugin/marketplace.json > tmp.json
+          mv tmp.json .claude-plugin/marketplace.json
+
+      - name: Update plugin.json files
+        run: |
+          NEW_VERSION="${{ steps.bump.outputs.new_version }}"
+          
+          # Update each plugin's plugin.json
+          for plugin_json in */. claude-plugin/plugin.json; do
+            if [ -f "$plugin_json" ]; then
+              jq --arg v "$NEW_VERSION" '.version = $v' "$plugin_json" > tmp.json
+              mv tmp.json "$plugin_json"
+              echo "Updated $plugin_json to $NEW_VERSION"
+            fi
+          done
+
+      - name: Commit and tag
+        run: |
+          NEW_VERSION="${{ steps.bump.outputs.new_version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .claude-plugin/marketplace.json */. claude-plugin/plugin.json
+          git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
+          git tag "v$NEW_VERSION"
+          git push origin main --tags
