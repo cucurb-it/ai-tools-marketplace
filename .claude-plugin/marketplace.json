@@ -3,6 +3,10 @@
   "owner": {
     "name": "Cucurb IT BV"
   },
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/cucurb-it/ai-tools-marketplace"
+  },
   "metadata": {
     "description": "AI Tools Marketplace — production-ready skills, agents, and workflows for AI-augmented software development",
     "version": "26.227.2"
