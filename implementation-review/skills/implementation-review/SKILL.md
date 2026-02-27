@@ -50,7 +50,7 @@ At the start of every review session:
 2. **Perform Review**
    - Cross-reference code against ANALYSIS document
    - Check compliance with project conventions
-   - Scan for security issues (null checks, input validation, error handling)
+   - Scan for security issues, such as null checks, input validation, error handling
    - Identify deviations from Implementation Plan
    - Flag code quality issues
    
