@@ -11,7 +11,7 @@ AI-augmented code review that validates implementations against blueprints, conv
 
 ## When to Use This Skill
 
-- Reviewing pull requests (human or AI-authored)
+- Reviewing pull requests, human or AI-authored
 - Validating implementations against ANALYSIS documents
 - Auditing code for security issues and convention compliance
 - Final review gate before merging to main

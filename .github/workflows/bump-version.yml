@@ -84,7 +84,8 @@ jobs:
           NEW_VERSION="${{ steps.bump.outputs.new_version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .claude-plugin/marketplace.json */. claude-plugin/plugin.json
+          git add .claude-plugin/marketplace.json
+          find . -path '*/.claude-plugin/plugin.json' -exec git add {} \;
           git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
           git tag "v$NEW_VERSION"
           git push origin main --tags
