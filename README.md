@@ -8,7 +8,7 @@ Production-ready skills, agents, and workflows for AI-augmented software develop
 
 ### Implementation Review
 **Status:** Available  
-**Version:** 26.227.2
+**Version:** 26.227.3
 
 AI-augmented code review skill that validates implementations against ANALYSIS documents, project conventions, and security best practices. Produces structured Review Reports for human and AI consumption.
 
