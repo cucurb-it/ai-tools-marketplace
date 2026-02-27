@@ -1,6 +1,6 @@
 {
   "name": "implementation-review",
-  "version": "26.227.1",
+  "version": "26.227.2",
   "description": "AI-augmented code review skill. Reviews implementations against ANALYSIS documents, project conventions, and security best practices.",
   "author": {
     "name": "Cucurb IT BV"
