@@ -29,7 +29,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Current version: $VERSION"
 
-      - name: Bump version (date-based: YY.MDD.N)
+      - name: "Bump version (date-based: YY.MDD.N)"
         id: bump
         run: |
           CURRENT="${{ steps.current.outputs.version }}"
