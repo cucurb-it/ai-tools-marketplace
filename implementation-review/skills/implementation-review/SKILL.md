@@ -23,6 +23,23 @@ AI-augmented code review that validates implementations against blueprints, conv
 
 This skill performs **state-based review** — it reviews the current codebase state, not authorship. The code may have been written by AI, human, or both. The review assesses whether the current state meets requirements and quality standards.
 
+### Skill Invocation Protocol
+
+At the start of every review session:
+
+1. Ask the user for the **feature or refactoring name** (same as used in ANALYSIS document, if present)
+2. Ask for the **working folder** where the Review Report should be stored
+3. Set:
+   - `{{FEATURE_NAME}}` = the name provided (use as-is, no normalisation)
+   - `{{FOLDER_NAME}}` = the folder provided
+   - `{{FEATURE_NAME_UPPERCASE}}` = feature name converted to SCREAMING_SNAKE_CASE
+   - Review Report path = `{{FOLDER_NAME}}/{{FEATURE_NAME_UPPERCASE}}_REVIEW_{{ISO_TIMESTAMP}}.md`
+     where `{{ISO_TIMESTAMP}}` is the current date and time in ISO 8601 format: `YYYYMMDD_HHMMSS`
+   - Example: "Building Information Processor" → `BUILDING_INFORMATION_PROCESSOR_REVIEW_20260218_143022.md`
+4. Check if an ANALYSIS document exists at `{{FOLDER_NAME}}/{{FEATURE_NAME_UPPERCASE}}_ANALYSIS.md`
+   - If present, use it as the review blueprint
+   - If absent, review against project conventions only
+
 ### Review Process
 
 1. **Gather Context**
@@ -71,24 +88,28 @@ This skill performs **state-based review** — it reviews the current codebase s
 
 ### Standalone Usage
 
+The skill will prompt you for:
+1. Feature or refactoring name
+2. Folder for storing the Review Report
+
+Then it will:
+- Check for an ANALYSIS document at the standard path
+- Review the current codebase state
+- Produce a Review Report
+
 ```bash
 # Review current working directory
 /implementation-review
 
-# Review with specific ANALYSIS document
-Review the implementation against docs/FEATURE_ANALYSIS.md
-
-# Review specific folder
-Review the src/Platform/VrvSelection implementation
-
-# Review PR branch
-git checkout feature/new-api
-/implementation-review
+# The skill will ask for feature name and folder
 ```
 
 ### Integrated with Analysis-Gated Workflow
 
-Called automatically at Phase 06, or manually invoked by Architect before final commit.
+When invoked from Phase 06 of the workflow, the skill automatically uses:
+- Feature name from the ANALYSIS document
+- Same folder as the ANALYSIS document
+- Existing ANALYSIS document as the review blueprint
 
 ---
 
@@ -137,12 +158,23 @@ The skill evaluates the current codebase against these criteria:
 ## Review Report Format
 
 The skill produces a structured **Review Report** saved as:
-`IMPLEMENTATION_REVIEW_REPORT_[TIMESTAMP].md`
+`{{FOLDER_NAME}}/{{FEATURE_NAME_UPPERCASE}}_REVIEW_{{ISO_TIMESTAMP}}.md`
+
+Example: `BUILDING_INFORMATION_PROCESSOR_REVIEW_20260218_143022.md`
+
+This naming convention:
+- Matches the ANALYSIS document convention (if present)
+- Uses SCREAMING_SNAKE_CASE for feature name
+- Includes ISO 8601 timestamp for multiple reviews of the same feature
+- Makes Review Reports easy to locate alongside ANALYSIS documents
 
 ### Report Structure
 
+Filename: `{{FEATURE_NAME_UPPERCASE}}_REVIEW_{{ISO_TIMESTAMP}}.md`
+
 ```markdown
 # Implementation Review Report
+# [FEATURE_NAME]
 
 **Date:** YYYY-MM-DD HH:MM  
 **Reviewer:** AI Model (with optional human co-review)  
