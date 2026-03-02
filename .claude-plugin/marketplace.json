@@ -30,6 +30,25 @@
       ],
       "category": "quality-assurance",
       "strict": false
+    },
+    {
+      "name": "implementation-documentation",
+      "source": "./implementation-documentation",
+      "description": "AI-powered documentation generation for features, components, and systems. Creates comprehensive DOCUMENTATION documents with architecture diagrams, API specs, usage examples, and more.",
+      "version": "26.218.1",
+      "author": {
+        "name": "Cucurb IT BV"
+      },
+      "license": "MIT",
+      "keywords": [
+        "documentation",
+        "diagrams",
+        "architecture",
+        "technical-writing",
+        "api-docs"
+      ],
+      "category": "documentation",
+      "strict": false
     }
   ]
 }

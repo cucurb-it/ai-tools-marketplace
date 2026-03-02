@@ -1,0 +1,19 @@
+{
+  "name": "implementation-documentation",
+  "version": "26.218.1",
+  "description": "AI-powered documentation generation for features, components, and systems. Creates comprehensive DOCUMENTATION documents with architecture diagrams, API specs, and usage examples.",
+  "author": {
+    "name": "Cucurb IT BV"
+  },
+  "homepage": "https://github.com/cucurb-it/ai-tools-marketplace",
+  "repository": "https://github.com/cucurb-it/ai-tools-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "documentation",
+    "diagrams",
+    "architecture",
+    "technical-writing",
+    "api-docs"
+  ],
+  "skills": ["./skills/"]
+}
