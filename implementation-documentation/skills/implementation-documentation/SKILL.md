@@ -1,5 +1,5 @@
 ---
-name: documentation
+name: implementation-documentation
 description: Generate comprehensive technical documentation using a two-phase gated workflow. Phase 01 - Documentation Planning (scope and structure). Phase 02 - Documentation Generation (full document). Architect reviews and approves at each gate. Use when documenting features, components, or systems.
 ---
 
