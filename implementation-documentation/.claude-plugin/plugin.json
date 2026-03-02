@@ -1,6 +1,6 @@
 {
   "name": "implementation-documentation",
-  "version": "26.218.1",
+  "version": "26.302.1",
   "description": "AI-powered documentation generation for features, components, and systems. Creates comprehensive DOCUMENTATION documents with architecture diagrams, API specs, and usage examples.",
   "author": {
     "name": "Cucurb IT BV"
@@ -15,5 +15,7 @@
     "technical-writing",
     "api-docs"
   ],
-  "skills": ["./skills/"]
+  "skills": [
+    "./skills/"
+  ]
 }
