@@ -106,6 +106,11 @@ Ask the user:
 **Target Audience:**
 - Developers, architects, operators, end users?
 
+**Diagram Format Preference:**
+- PlantUML, Mermaid, or both?
+- If both: which diagram types should use which format?
+- Note: ASCII art will be generated for ALL diagrams regardless of markup format
+
 **Context Sources:**
 - Existing ANALYSIS documents to reference?
 - Specific source code files to read?
