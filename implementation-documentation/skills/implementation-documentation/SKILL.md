@@ -1,11 +1,11 @@
 ---
 name: implementation-documentation
-description: Generate comprehensive technical documentation using a two-phase gated workflow. Phase 01 - Documentation Planning (scope and structure). Phase 02 - Documentation Generation (full document). Architect reviews and approves at each gate. Use when documenting features, components, or systems.
+description: Generate comprehensive technical documentation using a two-phase gated workflow with state tracking and prompt logging. Phase 01 - Documentation Planning. Phase 02 - Documentation Generation. Architect reviews at each gate. Commits to git at phase transitions.
 ---
 
 # Implementation Documentation Skill
 
-AI-powered technical documentation generation following a **two-phase gated workflow** where the Architect reviews and approves before proceeding.
+AI-powered technical documentation generation following a **two-phase gated workflow** with workflow state tracking, prompt logging, and automatic git commits at phase transitions.
 
 ---
 
@@ -37,11 +37,12 @@ You are a member of the development team, supporting the Software Architect in c
    - `{{FEATURE_NAME_UPPERCASE}}_DOCUMENTATION.md`
    - Example: "Building Information Processor" → `BUILDING_INFORMATION_PROCESSOR_DOCUMENTATION.md`
 4. **Check if DOCUMENTATION.md already exists:**
-   - If **YES**: Read the existing file for Architect instructions, scope, and structure guidance
-     - Look for pre-populated sections, scope boundaries, diagram requests, style preferences
-     - Follow any instructions found in the document
-     - Proceed directly to DOCUMENTATION GENERATION PHASE with the guidance provided
-   - If **NO**: Begin DOCUMENTATION PLANNING PHASE (ask questions to gather scope)
+   - If **YES**: Read the existing file for:
+     - Workflow State (current phase)
+     - Architect instructions, scope, structure guidance
+     - Existing Prompt Log
+     - Resume from current phase or proceed based on state
+   - If **NO**: Create new DOCUMENTATION.md with Workflow State block, begin DOCUMENTATION PLANNING PHASE
 
 ---
 
@@ -49,13 +50,41 @@ You are a member of the development team, supporting the Software Architect in c
 
 **Note:** This phase is only needed when NO pre-populated DOCUMENTATION.md exists. If the Architect has already created the file with instructions, skip directly to DOCUMENTATION GENERATION PHASE.
 
-### Step 1 — Ask for Feature Name and Folder
+### Step 1 — Create DOCUMENTATION.md with Workflow State
 
-Ask the user:
-1. Feature or component name
-2. Working folder for the DOCUMENTATION document
+Create the file with this initial structure:
 
-Set paths and wait for response. **Do not proceed to Step 2 until user responds.**
+```markdown
+# [FEATURE_NAME] Implementation Documentation
+
+---
+## WORKFLOW STATE
+
+**Current Phase:** DOCUMENTATION PLANNING PHASE — IN PROGRESS  
+**Last Updated:** YYYY-MM-DD HH:MM
+
+### Phase History
+- DOCUMENTATION PLANNING PHASE — Started: YYYY-MM-DD HH:MM
+---
+
+[Rest of document structure...]
+
+---
+
+## PROMPT LOG
+
+### [YYYY-MM-DD HH:MM] — Session Start
+
+**Prompt:**
+```
+[Initial user request]
+```
+
+**AI Response Summary:**
+Created DOCUMENTATION document, beginning Planning Phase.
+
+---
+```
 
 ### Step 2 — Ask for Scope and Boundaries
 
@@ -81,6 +110,8 @@ Ask the user:
 - Existing ANALYSIS documents to reference?
 - Specific source code files to read?
 - Should I read project conventions (.claude/, .github/)?
+
+**Log this prompt in PROMPT LOG section.**
 
 **Wait for all responses before proceeding to Step 3.**
 
@@ -116,14 +147,21 @@ Present to Architect:
 
 **STOP.** Do not proceed without explicit Architect signal.
 
-### Step 4 — Handle Feedback
+### Step 5 — Handle Feedback or Complete Phase
 
-If feedback provided:
+**If feedback provided:**
+- Log feedback in PROMPT LOG
 - Update Documentation Plan
 - Present revised plan
 - Wait for approval
 
-Only advance when Architect signals readiness.
+**When Architect signals to proceed:**
+1. Update Workflow State to: `DOCUMENTATION PLANNING PHASE — COMPLETE`
+2. Add completion timestamp to Phase History
+3. Add new phase: `DOCUMENTATION GENERATION PHASE — Started: [timestamp]`
+4. Log the proceed signal in PROMPT LOG
+5. **Git commit**: Check if in git repo, if yes: `git commit -m "chore: complete DOCUMENTATION PLANNING PHASE [skip ci]"`
+6. Advance to DOCUMENTATION GENERATION PHASE
 
 ---
 
@@ -150,44 +188,52 @@ Use SCREAMING_SNAKE_CASE naming convention.
 
 Present both formats for each diagram so the Architect can choose which to keep.
 
+**Update Workflow State:**
+- Current Phase remains: `DOCUMENTATION GENERATION PHASE — IN PROGRESS`
+- Update Last Updated timestamp
+
 ### Step 3 — Present Completed Documentation
 
 > "Documentation Generation Phase complete. The DOCUMENTATION document is ready at [path]. Please review and provide feedback or approve."
 
 **STOP.** Wait for feedback or approval.
 
-### Step 4 — Iterate
+### Step 4 — Iterate or Complete
 
-If changes requested:
+**If changes requested:**
+- Log change request in PROMPT LOG
 - Update document
 - Present revision
 - Wait for approval
 
-If approved:
-- Documentation complete
-- Workflow closes
+**If approved:**
+1. Update Workflow State to: `DOCUMENTATION GENERATION PHASE — COMPLETE`
+2. Add completion timestamp to Phase History
+3. Log approval in PROMPT LOG
+4. **Git commit**: `git commit -m "chore: complete DOCUMENTATION GENERATION PHASE [skip ci]"`
+5. Documentation workflow complete
 
 ---
 
 ## DOCUMENTATION Template Structure
 
-All diagrams should be generated in **both PlantUML/Mermaid and ASCII art formats**.
+**All diagrams generated in both PlantUML/Mermaid and ASCII art formats.**
 
-Example:
+### Diagram Format Example
 
 ```markdown
 ### Architecture Diagram
 
 **PlantUML:**
-\```plantuml
+```plantuml
 @startuml
 [Component A] --> [Component B]
 [Component B] --> [Database]
 @enduml
-\```
+```
 
 **ASCII Art:**
-\```
+```
      ,-----------.          ,-----------.
      |Component A|          |Component B|
      `-----------'          `-----------'
@@ -198,73 +244,43 @@ Example:
            |                 ,--------.
            |                 |Database|
            |                 `--------'
-\```
+```
 ```
 
-Or using Mermaid:
+### Documentation Sections (In Order)
 
-```markdown
-**Mermaid:**
-\```mermaid
-graph TD
-    A[Component A] --> B[Component B]
-    B --> C[Database]
-\```
+1. **Workflow State** — Current phase, phase history (at top of document)
+2. **Overview** — Purpose, scope, audience
+3. **Architecture** — High-level design, architecture diagrams, patterns
+4. **Service Contracts** — Business capabilities, interfaces, behavioral contracts (CRITICAL SECTION)
+5. **Components** — Detailed component breakdown
+6. **API / Interfaces** — Public APIs with examples
+7. **Data Model** — Entities, relationships, ERDs
+8. **Usage Examples** — Basic and advanced scenarios
+9. **Configuration** — Settings, environment variables
+10. **Dependencies** — Packages, libraries, external services
+11. **Sequence Diagrams** — Interaction flows
+12. **State Diagrams** — State machines and transitions
+13. **Error Handling** — Exceptions, error codes
+14. **Performance** — Characteristics, bottlenecks
+15. **Security** — Authentication, authorization, data protection
+16. **Testing** — Unit tests, integration tests, coverage
+17. **Deployment** — Steps, configuration, rollback
+18. **Monitoring** — Metrics, alerts, logging
+19. **Known Limitations** — Current constraints
+20. **Future Enhancements** — Planned improvements
+21. **Related Features** — Dependencies and relationships
+22. **References** — Links to related docs
+23. **Changelog** — Version history
+24. **Prompt Log** — All prompts and AI responses (at bottom of document)
 
-**ASCII Art:**
-\```
-    ┌───────────┐
-    │Component A│
-    └─────┬─────┘
-          │
-          ▼
-    ┌───────────┐
-    │Component B│
-    └─────┬─────┘
-          │
-          ▼
-    ┌─────────┐
-    │ Database│
-    └─────────┘
-\```
-```
+---
 
-**Apply this dual-format approach to all diagrams:**
-- Architecture diagrams
-- Service contract diagrams
-- Component diagrams
-- Sequence diagrams
-- State diagrams
-- Entity relationship diagrams
+## Service Contracts Section (Critical)
 
-**Documentation sections (in order):**
+This section documents the business capabilities and behavioral contracts that drive implementation.
 
-1. **Overview** — Purpose, scope, audience
-2. **Architecture** — High-level design, architecture diagrams, patterns
-3. **Service Contracts** — Business capabilities, interfaces, behavioral contracts (CRITICAL SECTION)
-4. **Components** — Detailed component breakdown
-5. **API / Interfaces** — Public APIs with examples
-6. **Data Model** — Entities, relationships, ERDs
-7. **Usage Examples** — Basic and advanced scenarios
-8. **Configuration** — Settings, environment variables
-9. **Dependencies** — Packages, libraries, external services
-10. **Sequence Diagrams** — Interaction flows
-11. **State Diagrams** — State machines and transitions
-12. **Error Handling** — Exceptions, error codes
-13. **Performance** — Characteristics, bottlenecks
-14. **Security** — Authentication, authorization, data protection
-15. **Testing** — Unit tests, integration tests, coverage
-16. **Deployment** — Steps, configuration, rollback
-17. **Monitoring** — Metrics, alerts, logging
-18. **Known Limitations** — Current constraints
-19. **Future Enhancements** — Planned improvements
-20. **Related Features** — Dependencies and relationships
-21. **References** — Links to related docs
-22. **Changelog** — Version history
-
-### Service Contracts Section Template
-
-The Service Contracts section should thoroughly document:
+**Include:**
 
 **Business Capabilities:**
 - What business capabilities does this component/service expose?
@@ -276,7 +292,7 @@ The Service Contracts section should thoroughly document:
 - Operations exposed by the service
 - Expected behavior for each operation
 
-**Contract Diagrams (both PlantUML/Mermaid and ASCII):**
+**Contract Diagrams (PlantUML + ASCII):**
 - Service contract overview showing consumers and providers
 - Contract dependencies between services
 
@@ -286,9 +302,10 @@ The Service Contracts section should thoroughly document:
 - Validation rules
 
 **Behavioral Contracts:**
-- Preconditions (what must be true before calling)
-- Postconditions (what will be true after calling)
-- Invariants (what remains true throughout)
+- **Preconditions:** What must be true before calling
+- **Postconditions:** What will be true after calling
+- **Invariants:** What remains true throughout
+- **Behavioral guarantees:** Idempotency, timeout constraints, error handling
 
 **Contract Versioning:**
 - How contracts evolve over time
@@ -300,24 +317,24 @@ The Service Contracts section should thoroughly document:
 - Throughput expectations
 - Error handling guarantees
 
-**Example structure:**
+**Example:**
 
 ```markdown
 ## Service Contracts
 
 ### Business Capabilities
 
-This component exposes the following business capabilities:
+This component exposes:
 
-1. **[Capability Name]**
-   - **Purpose:** [What business need it addresses]
-   - **Consumers:** [Who uses this capability]
-   - **Business Rules:** [Key business rules enforced]
+1. **Building Processing**
+   - **Purpose:** Process building information and generate structural analysis
+   - **Consumers:** Building Management UI, Import Service, Mobile App
+   - **Business Rules:** Must validate building data before processing
 
 ### Service Contract Overview
 
 **PlantUML:**
-\```plantuml
+```plantuml
 @startuml
 interface IBuildingProcessor {
   + ProcessBuilding(request: BuildingRequest): BuildingResponse
@@ -328,41 +345,33 @@ component BuildingProcessor implements IBuildingProcessor
 component Client1 --> IBuildingProcessor
 component Client2 --> IBuildingProcessor
 @enduml
-\```
+```
 
 **ASCII Art:**
-\```
+```
 ┌─────────────────────────────┐
 │   IBuildingProcessor        │
 │ ─────────────────────────── │
 │ + ProcessBuilding()         │
 │ + ValidateBuilding()        │
 └──────────▲──────────────────┘
-           │
            │ implements
-           │
 ┌──────────┴──────────────────┐
 │  BuildingProcessor          │
 └─────────────────────────────┘
-           ▲
-           │
-           │ consumes
-   ┌───────┴────────┐
-   │                │
-┌──┴───┐      ┌────┴──┐
-│Client│      │Client2│
-│  1   │      │       │
-└──────┘      └───────┘
-\```
+     ▲              ▲
+     │              │
+  Client1        Client2
+```
 
 ### Contract Operations
 
 #### ProcessBuilding
 
 **Signature:**
-\```csharp
+```csharp
 BuildingResponse ProcessBuilding(BuildingRequest request)
-\```
+```
 
 **Business Capability:** Process building information and generate structural analysis
 
@@ -383,41 +392,30 @@ BuildingResponse ProcessBuilding(BuildingRequest request)
 - **Must** rollback changes if processing fails
 
 **Data Contract (Request):**
-\```csharp
+```csharp
 public class BuildingRequest
 {
     public Guid BuildingId { get; init; }
     public string BuildingType { get; init; }
     public BuildingData Data { get; init; }
 }
-\```
+```
 
 **Data Contract (Response):**
-\```csharp
+```csharp
 public class BuildingResponse
 {
     public Guid ProcessingId { get; init; }
     public ProcessingStatus Status { get; init; }
     public ValidationResult[] Validations { get; init; }
 }
-\```
+```
 
 **Exceptions:**
 - `ArgumentNullException` — Request is null
 - `InvalidBuildingException` — Building data is invalid
 - `TimeoutException` — Processing exceeded 5 seconds
 - `UnauthorizedException` — User lacks permission
-
-### Contract Dependencies
-
-**This service consumes:**
-- `IValidationService` — For building validation
-- `IBuildingRepository` — For building persistence
-
-**This service is consumed by:**
-- Building Management UI
-- Import Service
-- Mobile App
 
 ### Contract Versioning
 
@@ -439,13 +437,24 @@ public class BuildingResponse
 - **Response Time:** P95 < 2 seconds, P99 < 5 seconds
 - **Throughput:** Support 1000 requests/minute
 - **Error Rate:** < 0.1% for valid requests
-
-**Guarantees:**
-- At-least-once processing (may retry on failure)
-- Results cached for 5 minutes
-- Audit trail for all operations
 ```
 
+---
+
+## Git Commit Protocol
+
+At each phase transition, after updating Workflow State:
+
+1. Check if DOCUMENTATION document is in a git repository
+2. Check if git is configured (user.name, user.email)
+3. If both pass: `git commit -m "chore: complete [PHASE_NAME] [skip ci]"`
+4. If fails: continue silently (no error)
+
+**Commit messages:**
+- Planning complete: `chore: complete DOCUMENTATION PLANNING PHASE [skip ci]`
+- Generation complete: `chore: complete DOCUMENTATION GENERATION PHASE [skip ci]`
+
+This creates automatic checkpoints at phase boundaries for audit trail.
 
 ---
 
@@ -459,23 +468,41 @@ public class BuildingResponse
 
 ---
 
+## What This Skill Does
+
+- **Tracks workflow state** (current phase, phase history)
+- **Logs all prompts** and AI responses for audit trail
+- **Commits to git** at phase transitions
+- **Reads pre-populated DOCUMENTATION.md** if Architect created it
+- **Generates comprehensive documentation** with dual-format diagrams
+- **Emphasizes Service Contracts** as critical business capability layer
+
+---
+
 ## What This Skill Does NOT Do
 
 - Does not generate documentation without Architect approval at gates
-- Does not skip Documentation Planning Phase
+- Does not skip Documentation Planning Phase (unless pre-populated)
 - Does not self-approve structure
 - Does not auto-deploy documentation
+- Does not modify Workflow State without explicit phase completion
 
 ---
 
 ## Quality Criteria
 
 **Planning Phase complete:**
+- [ ] Workflow State updated to COMPLETE
 - [ ] Context and scope gathered
 - [ ] Structure proposed
 - [ ] Architect approved OR provided feedback
+- [ ] Git commit created (if in repo)
 
 **Generation Phase complete:**
+- [ ] Workflow State updated to COMPLETE
 - [ ] All approved sections populated
-- [ ] Diagrams created
+- [ ] Service Contracts thoroughly documented
+- [ ] Diagrams created (both PlantUML and ASCII)
+- [ ] Prompt Log maintained throughout
 - [ ] Architect approved documentation
+- [ ] Git commit created (if in repo)
