@@ -292,14 +292,14 @@ This section documents the business capabilities and behavioral contracts that d
 - What business problems does it solve?
 - Who are the consumers of these capabilities?
 
+**Contract Diagrams (PlantUML + ASCII):**
+- Service contract overview showing consumers and providers
+- Contract dependencies between services
+
 **Service Contract Definition:**
 - Interface definitions (C# interfaces, API contracts, message contracts)
 - Operations exposed by the service
 - Expected behavior for each operation
-
-**Contract Diagrams (PlantUML + ASCII):**
-- Service contract overview showing consumers and providers
-- Contract dependencies between services
 
 **Data Contracts:**
 - Request/response message structures
