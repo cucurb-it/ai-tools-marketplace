@@ -34,19 +34,15 @@ jobs:
         run: |
           CURRENT="${{ steps.current.outputs.version }}"
           
-          # Extract date prefix (YY.MDD) - month without zero, day with zero
           YEAR=$(date +%y)
-          MONTH=$(date +%-m)  # %-m removes leading zero from month
-          DAY=$(date +%d)     # %d keeps leading zero on day
+          MONTH=$(date +%-m)
+          DAY=$(date +%d)
           DATE_PREFIX="$YEAR.$MONTH$DAY"
           
-          # Check if current version starts with today's date
           if [[ "$CURRENT" == "$DATE_PREFIX."* ]]; then
-            # Extract increment and bump it
             INCREMENT=$(echo $CURRENT | cut -d. -f3)
             NEW_INCREMENT=$((INCREMENT + 1))
           else
-            # New date, reset increment to 1
             NEW_INCREMENT=1
           fi
           
@@ -58,11 +54,9 @@ jobs:
         run: |
           NEW_VERSION="${{ steps.bump.outputs.new_version }}"
           
-          # Update marketplace metadata version
           jq --arg v "$NEW_VERSION" '.metadata.version = $v' .claude-plugin/marketplace.json > tmp.json
           mv tmp.json .claude-plugin/marketplace.json
           
-          # Update all plugin versions in marketplace
           jq --arg v "$NEW_VERSION" '.plugins[].version = $v' .claude-plugin/marketplace.json > tmp.json
           mv tmp.json .claude-plugin/marketplace.json
 
@@ -70,7 +64,6 @@ jobs:
         run: |
           NEW_VERSION="${{ steps.bump.outputs.new_version }}"
           
-          # Update each plugin's plugin.json
           for plugin_json in */.claude-plugin/plugin.json; do
             if [ -f "$plugin_json" ]; then
               jq --arg v "$NEW_VERSION" '.version = $v' "$plugin_json" > tmp.json
@@ -79,13 +72,22 @@ jobs:
             fi
           done
 
-      - name: Update README.md
+      - name: Update README.md files
         run: |
           NEW_VERSION="${{ steps.bump.outputs.new_version }}"
           
-          # Update version in root README.md
-          sed -i "s/\*\*Version:\*\* [0-9]\+\.[0-9]\+\.[0-9]\+/**Version:** $NEW_VERSION/" README.md
-          echo "Updated README.md version to $NEW_VERSION"
+          # Update root README.md
+          sed -i "s/\*\*Version:\*\* [0-9]\+\.[0-9]\+\.[0-9]\+/**Version:** $NEW_VERSION/g" README.md
+          echo "Updated root README.md"
+          
+          # Update each tool's README.md
+          for readme in */README.md; do
+            if [ -f "$readme" ]; then
+              sed -i "s/\*\*Version:\*\* [0-9]\+\.[0-9]\+\.[0-9]\+/**Version:** $NEW_VERSION/g" "$readme"
+              sed -i "s/Current version: \*\*[0-9]\+\.[0-9]\+\.[0-9]\+\*\*/Current version: **$NEW_VERSION**/g" "$readme"
+              echo "Updated $readme"
+            fi
+          done
 
       - name: Commit and tag
         run: |
@@ -94,6 +96,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .claude-plugin/marketplace.json README.md
           find . -path '*/.claude-plugin/plugin.json' -exec git add {} \;
+          find . -path '*/README.md' -exec git add {} \;
           git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
           git tag "v$NEW_VERSION"
           git push origin main --tags
