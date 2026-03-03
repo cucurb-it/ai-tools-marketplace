@@ -3,7 +3,7 @@ name: implementation-documentation
 description: Generate comprehensive technical documentation using a two-phase gated workflow. Phase 01 - Documentation Planning (scope and structure). Phase 02 - Documentation Generation (full document). Architect reviews and approves at each gate. Use when documenting features, components, or systems.
 ---
 
-# Documentation Skill
+# Implementation Documentation Skill
 
 AI-powered technical documentation generation following a **two-phase gated workflow** where the Architect reviews and approves before proceeding.
 
@@ -36,13 +36,30 @@ You are a member of the development team, supporting the Software Architect in c
 3. Set paths:
    - `{{FEATURE_NAME_UPPERCASE}}_DOCUMENTATION.md`
    - Example: "Building Information Processor" → `BUILDING_INFORMATION_PROCESSOR_DOCUMENTATION.md`
-4. Begin DOCUMENTATION PLANNING PHASE
+4. **Check if DOCUMENTATION.md already exists:**
+   - If **YES**: Read the existing file for Architect instructions, scope, and structure guidance
+     - Look for pre-populated sections, scope boundaries, diagram requests, style preferences
+     - Follow any instructions found in the document
+     - Proceed directly to DOCUMENTATION GENERATION PHASE with the guidance provided
+   - If **NO**: Begin DOCUMENTATION PLANNING PHASE (ask questions to gather scope)
 
 ---
 
 ## DOCUMENTATION PLANNING PHASE
 
-### Step 1 — Gather Context & Scope
+**Note:** This phase is only needed when NO pre-populated DOCUMENTATION.md exists. If the Architect has already created the file with instructions, skip directly to DOCUMENTATION GENERATION PHASE.
+
+### Step 1 — Ask for Feature Name and Folder
+
+Ask the user:
+1. Feature or component name
+2. Working folder for the DOCUMENTATION document
+
+Set paths and wait for response. **Do not proceed to Step 2 until user responds.**
+
+### Step 2 — Ask for Scope and Boundaries
+
+**CRITICAL: Do not scan any files or folders until scope is defined.**
 
 Ask the user:
 
@@ -61,20 +78,30 @@ Ask the user:
 - Developers, architects, operators, end users?
 
 **Context Sources:**
-- Existing ANALYSIS documents?
-- Source code files to read?
-- Project conventions (.claude/, .github/)?
+- Existing ANALYSIS documents to reference?
+- Specific source code files to read?
+- Should I read project conventions (.claude/, .github/)?
 
-Wait for responses.
+**Wait for all responses before proceeding to Step 3.**
 
-### Step 2 — Read Project Conventions
+### Step 3 — Read Project Conventions (if requested)
 
-If `.claude/` and `.github/` exist, read all `.md` files for:
-- Coding standards
-- Architecture patterns
-- Documentation style
+**Only proceed if user confirmed to read project conventions.**
 
-### Step 3 — Propose Documentation Structure
+If `.claude/` and `.github/` exist and user requested reading them:
+- Read all `.md` files for coding standards, architecture patterns, documentation style
+- Document what was found
+
+If user did not request reading conventions, skip this step.
+
+### Step 4 — Propose Documentation Structure
+
+**If reading pre-populated DOCUMENTATION.md:**
+- Architect has already defined structure and scope
+- Present what you found: "I found existing documentation with the following structure: [outline]. Ready to proceed with generation following these instructions?"
+- Wait for confirmation before proceeding to DOCUMENTATION GENERATION PHASE
+
+**If gathering scope from questions:**
 
 Create **Documentation Plan**:
 
