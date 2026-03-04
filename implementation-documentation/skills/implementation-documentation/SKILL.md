@@ -67,7 +67,10 @@ Create the file with this initial structure:
 | Last Updated | YYYY-MM-DD |
 
 ### Phase History
-- DOCUMENTATION PLANNING PHASE — Started: YYYY-MM-DD HH:MM
+
+| Phase | Started | Completed |
+|---|---|---|
+| DOCUMENTATION PLANNING PHASE | YYYY-MM-DD | YYYY-MM-DD |
 ---
 
 [Rest of document structure...]
@@ -193,8 +196,8 @@ Present to Architect:
 1. Update Workflow State table:
    - Phase Status: `COMPLETE`
    - Last Updated: current timestamp
-2. Add completion timestamp to Phase History
-3. Add new phase to Phase History: `DOCUMENTATION GENERATION PHASE — Started: [timestamp]`
+2. Add completion date to Phase History table (update Completed column for current phase)
+3. Add new row to Phase History table: `DOCUMENTATION GENERATION PHASE` with Started date
 4. Update table for new phase:
    - Current Phase: `DOCUMENTATION GENERATION PHASE`
    - Phase Status: `IN PROGRESS`
@@ -249,7 +252,7 @@ Present both formats for each diagram so the Architect can choose which to keep.
 1. Update Workflow State table:
    - Phase Status: `COMPLETE`
    - Last Updated: current timestamp
-2. Add completion timestamp to Phase History
+2. Add completion date to Phase History table (update Completed column for DOCUMENTATION GENERATION PHASE)
 3. Add approval as new row in Prompt Log table
 4. **Git commit**: `git commit -m "chore: complete DOCUMENTATION GENERATION PHASE [skip ci]"`
 5. Documentation workflow complete
