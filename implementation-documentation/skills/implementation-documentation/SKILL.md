@@ -58,10 +58,13 @@ Create the file with this initial structure:
 # [FEATURE_NAME] Implementation Documentation
 
 ---
-## WORKFLOW STATE
+## Workflow State
 
-**Current Phase:** DOCUMENTATION PLANNING PHASE — IN PROGRESS  
-**Last Updated:** YYYY-MM-DD HH:MM
+| Field | Value |
+|---|---|
+| Current Phase | DOCUMENTATION PLANNING PHASE |
+| Phase Status | IN PROGRESS |
+| Last Updated | YYYY-MM-DD |
 
 ### Phase History
 - DOCUMENTATION PLANNING PHASE — Started: YYYY-MM-DD HH:MM
@@ -71,17 +74,13 @@ Create the file with this initial structure:
 
 ---
 
-## PROMPT LOG
+## Prompt Log
 
-### [YYYY-MM-DD HH:MM] — Session Start
+*(maintained throughout — deletable)*
 
-**Prompt:**
-```
-[Initial user request]
-```
-
-**AI Response Summary:**
-Created DOCUMENTATION document, beginning Planning Phase.
+| # | Date & Time | Phase | Prompt |
+|---|-------------|-------|--------|
+| 1 | YYYY-MM-DD HH:MM | DOCUMENTATION PLANNING PHASE | [Initial user request] |
 
 ---
 ```
@@ -115,20 +114,50 @@ Ask the user:
 - Existing ANALYSIS documents to reference?
 - Specific source code files to read?
 - Should I read project conventions (.claude/, .github/)?
+- Should I analyze the codebase to identify Service Contracts vs Component APIs?
 
-**Log this prompt in PROMPT LOG section.**
+**Log this prompt in Prompt Log table as a new numbered row.**
 
 **Wait for all responses before proceeding to Step 3.**
 
-### Step 3 — Read Project Conventions (if requested)
+### Step 3 — Read Project Conventions and Analyze Codebase (if requested)
 
-**Only proceed if user confirmed to read project conventions.**
+**Only proceed if user confirmed to read project conventions or analyze codebase.**
 
-If `.claude/` and `.github/` exist and user requested reading them:
+**If project conventions requested:**
+If `.claude/` and `.github/` exist:
 - Read all `.md` files for coding standards, architecture patterns, documentation style
 - Document what was found
 
-If user did not request reading conventions, skip this step.
+**Analyze codebase to identify Service Contracts vs Component APIs:**
+
+This is a critical step to properly categorize contracts:
+
+1. **Identify Service Contracts (Business Capabilities):**
+   - Scan dependency injection registrations (Startup.cs, Program.cs, service registration code)
+   - Look for interfaces registered as services (e.g., `services.AddScoped<IBuildingManager, BuildingManager>()`)
+   - Identify interfaces exposed through:
+     - API controllers (what services do controllers depend on?)
+     - Public-facing endpoints
+     - Service boundaries
+   - These are **business capability interfaces** like `IBuildingManager`, `IBuildingEngine`, `IBuildingAccess`
+   
+2. **Identify Component APIs (Internal Implementation):**
+   - Find interfaces consumed **by** the service implementations
+   - Look for dependencies of the business services identified above
+   - These are internal components like `IBuildingProcessor`, `IValidator`, `IRepository`
+   - These support the business services but aren't directly exposed to external consumers
+
+3. **Document the categorization:**
+   - List which interfaces are Service Contracts (business-facing)
+   - List which interfaces are Component APIs (internal)
+   - Note which components host/implement the business services
+
+**Example:**
+- **Service Contract:** `IBuildingManager` (registered in DI, consumed by controllers, business-facing)
+- **Component API:** `IBuildingProcessor` (consumed by `BuildingManager` implementation, internal)
+
+If user did not request codebase analysis, skip this step.
 
 ### Step 4 — Propose Documentation Structure
 
@@ -155,18 +184,23 @@ Present to Architect:
 ### Step 5 — Handle Feedback or Complete Phase
 
 **If feedback provided:**
-- Log feedback in PROMPT LOG
+- Add feedback as new row in Prompt Log table
 - Update Documentation Plan
 - Present revised plan
 - Wait for approval
 
 **When Architect signals to proceed:**
-1. Update Workflow State to: `DOCUMENTATION PLANNING PHASE — COMPLETE`
+1. Update Workflow State table:
+   - Phase Status: `COMPLETE`
+   - Last Updated: current timestamp
 2. Add completion timestamp to Phase History
-3. Add new phase: `DOCUMENTATION GENERATION PHASE — Started: [timestamp]`
-4. Log the proceed signal in PROMPT LOG
-5. **Git commit**: Check if in git repo, if yes: `git commit -m "chore: complete DOCUMENTATION PLANNING PHASE [skip ci]"`
-6. Advance to DOCUMENTATION GENERATION PHASE
+3. Add new phase to Phase History: `DOCUMENTATION GENERATION PHASE — Started: [timestamp]`
+4. Update table for new phase:
+   - Current Phase: `DOCUMENTATION GENERATION PHASE`
+   - Phase Status: `IN PROGRESS`
+5. Add proceed signal as new row in Prompt Log table
+6. **Git commit**: Check if in git repo, if yes: `git commit -m "chore: complete DOCUMENTATION PLANNING PHASE [skip ci]"`
+7. Advance to DOCUMENTATION GENERATION PHASE
 
 ---
 
@@ -194,8 +228,8 @@ Use SCREAMING_SNAKE_CASE naming convention.
 Present both formats for each diagram so the Architect can choose which to keep.
 
 **Update Workflow State:**
-- Current Phase remains: `DOCUMENTATION GENERATION PHASE — IN PROGRESS`
-- Update Last Updated timestamp
+- Phase Status remains: `IN PROGRESS`
+- Last Updated: current timestamp
 
 ### Step 3 — Present Completed Documentation
 
@@ -206,15 +240,17 @@ Present both formats for each diagram so the Architect can choose which to keep.
 ### Step 4 — Iterate or Complete
 
 **If changes requested:**
-- Log change request in PROMPT LOG
+- Add change request as new row in Prompt Log table
 - Update document
 - Present revision
 - Wait for approval
 
 **If approved:**
-1. Update Workflow State to: `DOCUMENTATION GENERATION PHASE — COMPLETE`
+1. Update Workflow State table:
+   - Phase Status: `COMPLETE`
+   - Last Updated: current timestamp
 2. Add completion timestamp to Phase History
-3. Log approval in PROMPT LOG
+3. Add approval as new row in Prompt Log table
 4. **Git commit**: `git commit -m "chore: complete DOCUMENTATION GENERATION PHASE [skip ci]"`
 5. Documentation workflow complete
 
@@ -257,70 +293,124 @@ Present both formats for each diagram so the Architect can choose which to keep.
 1. **Workflow State** — Current phase, phase history (at top of document)
 2. **Overview** — Purpose, scope, audience
 3. **Architecture** — High-level design, architecture diagrams, patterns
-4. **Service Contracts** — Business capabilities, interfaces, behavioral contracts (CRITICAL SECTION)
-5. **Components** — Detailed component breakdown
-6. **API / Interfaces** — Public APIs with examples
-7. **Data Model** — Entities, relationships, ERDs
-8. **Usage Examples** — Basic and advanced scenarios
-9. **Configuration** — Settings, environment variables
-10. **Dependencies** — Packages, libraries, external services
-11. **Sequence Diagrams** — Interaction flows
-12. **State Diagrams** — State machines and transitions
-13. **Error Handling** — Exceptions, error codes
-14. **Performance** — Characteristics, bottlenecks
-15. **Security** — Authentication, authorization, data protection
-16. **Testing** — Unit tests, integration tests, coverage
-17. **Deployment** — Steps, configuration, rollback
-18. **Monitoring** — Metrics, alerts, logging
-19. **Known Limitations** — Current constraints
-20. **Future Enhancements** — Planned improvements
-21. **Related Features** — Dependencies and relationships
-22. **References** — Links to related docs
-23. **Changelog** — Version history
-24. **Prompt Log** — All prompts and AI responses (at bottom of document)
+4. **Service Contracts** — Business capabilities, business-facing interfaces (CRITICAL SECTION)
+5. **Component API** — Internal component interfaces, implementation details
+6. **Components** — Detailed component breakdown
+7. **API / Interfaces** — Public APIs with examples (if exposing REST/GraphQL/etc.)
+8. **Data Model** — Entities, relationships, ERDs
+9. **Usage Examples** — Basic and advanced scenarios
+10. **Configuration** — Settings, environment variables
+11. **Dependencies** — Packages, libraries, external services
+12. **Sequence Diagrams** — Interaction flows
+13. **State Diagrams** — State machines and transitions
+14. **Error Handling** — Exceptions, error codes
+15. **Performance** — Characteristics, bottlenecks
+16. **Security** — Authentication, authorization, data protection
+17. **Testing** — Unit tests, integration tests, coverage
+18. **Deployment** — Steps, configuration, rollback
+19. **Monitoring** — Metrics, alerts, logging
+20. **Known Limitations** — Current constraints
+21. **Future Enhancements** — Planned improvements
+22. **Related Features** — Dependencies and relationships
+23. **References** — Links to related docs
+24. **Changelog** — Version history
+25. **Prompt Log** — All prompts and AI responses (at bottom of document)
 
 ---
 
 ## Service Contracts Section (Critical)
 
-This section documents the business capabilities and behavioral contracts that drive implementation.
+**IMPORTANT DISTINCTION:**
+- **Service Contracts** = Business-facing capability interfaces (e.g., `IBuildingManager`, `IBuildingEngine`, `IBuildingAccess`)
+- **Component APIs** = Internal implementation interfaces (e.g., `IBuildingProcessor`, `IValidator`)
+
+**Service Contracts are NOT every component interface** — they are specifically the interfaces that expose business capabilities to external consumers.
+
+This section documents the **business layer** — how business capabilities are exposed and implemented.
 
 **Include:**
 
 **Business Capabilities:**
-- What business capabilities does this component/service expose?
+- What business capabilities does this service expose?
 - What business problems does it solve?
-- Who are the consumers of these capabilities?
+- Who are the external consumers? (UI, APIs, other services)
+
+**Service Contract Interfaces:**
+- Business-facing interfaces (e.g., `IBuildingManager`, `IBuildingEngine`)
+- NOT internal component interfaces (those go in Component API section)
+- Interfaces that are:
+  - Registered in dependency injection as services
+  - Consumed by controllers/APIs/external boundaries
+  - Exposed as public service endpoints
+
+**Business Operations:**
+- Operations exposed by the service contract
+- What each operation does from a business perspective
+- Business rules enforced
+
+**Hosted In Components:**
+- Which concrete components implement these service contracts?
+- How are they registered/hosted?
+- Deployment/hosting details
 
 **Contract Diagrams (PlantUML + ASCII):**
 - Service contract overview showing consumers and providers
-- Contract dependencies between services
-
-**Service Contract Definition:**
-- Interface definitions (C# interfaces, API contracts, message contracts)
-- Operations exposed by the service
-- Expected behavior for each operation
+- Which components host which service contracts
+- External consumers → Service Contracts → Hosting Components
 
 **Data Contracts:**
-- Request/response message structures
-- DTOs and their fields
+- Request/response message structures for business operations
+- DTOs exposed at the service boundary
 - Validation rules
 
 **Behavioral Contracts:**
-- **Preconditions:** What must be true before calling
-- **Postconditions:** What will be true after calling
-- **Invariants:** What remains true throughout
+- **Preconditions:** What must be true before calling (business perspective)
+- **Postconditions:** What will be true after calling (business perspective)
+- **Invariants:** Business rules that remain true
 - **Behavioral guarantees:** Idempotency, timeout constraints, error handling
 
 **Contract Versioning:**
-- How contracts evolve over time
-- Backward compatibility strategy
+- How service contracts evolve over time
+- Backward compatibility strategy for business consumers
 - Deprecation policy
 
 **Quality of Service:**
 - SLA requirements (response time, availability)
 - Throughput expectations
-- Error handling guarantees
+- Error handling guarantees from business perspective
+
+---
+
+## Component API Section
+
+This section documents **internal component interfaces** used in the implementation layer.
+
+**Include:**
+
+**Component Interfaces:**
+- Internal interfaces consumed by service implementations
+- Examples: `IBuildingProcessor`, `IValidator`, `IRepository`
+- Interfaces that are:
+  - Used internally by business services
+  - NOT directly exposed to external consumers
+  - Implementation details
+
+**Purpose:**
+- What does each component interface do?
+- Why does it exist?
+- Which service contracts depend on it?
+
+**Operations:**
+- Methods exposed by the component interface
+- Technical details (not business-level operations)
+
+**Dependencies:**
+- What does this component depend on?
+- What depends on this component?
+
+**Usage:**
+- How is this component used internally?
+- Code examples showing typical usage
 
 **Example:**
 
@@ -497,17 +587,17 @@ This creates automatic checkpoints at phase boundaries for audit trail.
 ## Quality Criteria
 
 **Planning Phase complete:**
-- [ ] Workflow State updated to COMPLETE
+- [ ] Workflow State table updated (Phase Status = COMPLETE)
 - [ ] Context and scope gathered
 - [ ] Structure proposed
 - [ ] Architect approved OR provided feedback
 - [ ] Git commit created (if in repo)
 
 **Generation Phase complete:**
-- [ ] Workflow State updated to COMPLETE
+- [ ] Workflow State table updated (Phase Status = COMPLETE)
 - [ ] All approved sections populated
 - [ ] Service Contracts thoroughly documented
-- [ ] Diagrams created (both PlantUML and ASCII)
+- [ ] Diagrams created (both PlantUML/Mermaid and ASCII)
 - [ ] Prompt Log maintained throughout
 - [ ] Architect approved documentation
 - [ ] Git commit created (if in repo)
