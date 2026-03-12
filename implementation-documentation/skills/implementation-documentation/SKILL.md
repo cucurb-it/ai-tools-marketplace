@@ -132,6 +132,11 @@ If `.claude/` and `.github/` exist:
 - Read all `.md` files for coding standards, architecture patterns, documentation style
 - Document what was found
 
+If in the target folder other `.md/` files exist than `{{FEATURE_NAME_UPPERCASE}}_DOCUMENTATION.md`:
+- Read all these `.md` files for implementation details, architectural decisions, coding patterns, conventions, consequences, etc.
+- Document what was found in these files that is relevant to the implementation and documentation of this feature/component and for the target audience.
+- Write in a tone and language suitable for the target audience.
+
 **Analyze codebase to identify Service Contracts vs Component APIs:**
 
 This is a critical step to properly categorize contracts:
@@ -224,6 +229,18 @@ Populate only sections identified in approved plan.
 
 Use SCREAMING_SNAKE_CASE naming convention.
 
+Start the document with a summary of the most critical information discovered during documentation generation, such as:
+- Critical design decisions
+- Important architectural patterns
+- Key business capabilities
+
+---
+
+## Summary
+- [Brief summary of most important information discovered during documentation generation, such as critical design decisions, important architectural patterns, key business capabilities, etc.]
+
+---
+
 **For all diagrams, generate BOTH formats:**
 1. PlantUML/Mermaid markup (for rendering in tools that support it)
 2. ASCII art representation (for plain text viewing)
@@ -312,12 +329,13 @@ Present both formats for each diagram so the Architect can choose which to keep.
 17. **Testing** — Unit tests, integration tests, coverage
 18. **Deployment** — Steps, configuration, rollback
 19. **Monitoring** — Metrics, alerts, logging
-20. **Known Limitations** — Current constraints
-21. **Future Enhancements** — Planned improvements
-22. **Related Features** — Dependencies and relationships
-23. **References** — Links to related docs
-24. **Changelog** — Version history
-25. **Prompt Log** — All prompts and AI responses (at bottom of document)
+20. **Deviations** — Deviations from planned approach during implementation
+21. **Known Limitations** — Current constraints
+22. **Future Enhancements** — Planned improvements
+23. **Related Features** — Dependencies and relationships
+24. **References** — Links to related docs
+25. **Changelog** — Version history
+26. **Prompt Log** — All prompts and AI responses (at bottom of document)
 
 ---
 
@@ -414,6 +432,51 @@ This section documents **internal component interfaces** used in the implementat
 **Usage:**
 - How is this component used internally?
 - Code examples showing typical usage
+
+---
+
+## Deviations Section
+
+This section documents deviations from the planned approach that were discovered during implementation.
+
+**Include:**
+
+**Deviation Entry Format:**
+
+```markdown
+### Deviation N — YYYY-MM-DD
+
+| Field | Info |
+|---|---|
+| **Planned** | [What the original plan/documentation specified] |
+| **Actual** | [What was actually implemented and why the plan couldn't be followed] |
+| **Reason** | [Root cause — why the deviation was necessary] |
+| **Impact** | [What had to change as a result] |
+| **Decision** | [APPROVED / REJECTED / PENDING — with rationale] |
+```
+
+**Example:**
+
+```markdown
+### Deviation 1 — 2026-03-10
+
+| Field | Info |
+|---|---|
+| **Planned** | Conditional thinking block rendered inside the bot message `<Padder>` using `@if (!string.IsNullOrEmpty(message.ThinkingContent))` as a child of `<Padder>`. |
+| **Actual** | `<Padder>` in RazorConsole does not support dynamic child counts. Placing `@if` blocks inside `<Padder>` (including the `@if (message.IsUser)` branch) caused the component to fail to render any children. |
+| **Reason** | The original codebase establishes a clear convention: `<Rows>` handles dynamic/conditional children; `<Padder>` always receives a fixed set of children. The Implementation Plan did not account for this RazorConsole-specific constraint. |
+| **Impact** | Phase 3.2 (rendering loop) must be restructured. Conditional content must live at the `<Rows>` level. Each `<Padder>` must have exactly 3 fixed children. Two separate `<Padder>` instances are used for bot messages. |
+| **Decision** | APPROVED — self-evident fix from existing codebase convention. |
+```
+
+**When to add a Deviation:**
+- Implementation discovered that planned approach won't work
+- Codebase constraints not captured in planning phase
+- Performance/security issues require different approach
+- Third-party library behavior differs from documentation
+- Architect makes mid-implementation decision to change approach
+
+**Deviations require Architect approval** — they represent changes to the agreed plan.
 
 **Example:**
 
