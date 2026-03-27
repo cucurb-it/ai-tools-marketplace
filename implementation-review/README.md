@@ -172,7 +172,7 @@ Create `.claude/review-config.json`:
 
 ## Version
 
-Current version: **26.312.1**  
+Current version: **26.327.1**  
 Versioning scheme: `YY.MDD.N` (date-based)
 
 ---
