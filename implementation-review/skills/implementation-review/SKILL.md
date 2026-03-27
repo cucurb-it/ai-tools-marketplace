@@ -176,7 +176,7 @@ Filename: `{{FEATURE_NAME_UPPERCASE}}_REVIEW_{{ISO_TIMESTAMP}}.md`
 # [FEATURE_NAME] Implementation Review 
 
 **Date:** YYYY-MM-DD HH:MM  
-**Reviewer:** AI Model (with optional human co-review)  
+**Reviewer:** [Reviewer name — never the AI] (with [AI model name] co-review)  
 **Branch/Commit:** [branch name or commit SHA]  
 **ANALYSIS Document:** [path or "None"]
 
