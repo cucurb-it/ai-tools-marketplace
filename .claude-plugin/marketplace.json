@@ -13,6 +13,28 @@
   },
   "plugins": [
     {
+      "name": "app-maturity-audit",
+      "source": "./",
+      "description": "AI-powered workflow that audits a codebase's production maturity and modernization needs. Scores ten dimensions against evidence, pauses for human review, and emits a sliced analysis bundle for executive, business, and technical audiences.",
+      "version": "26.327.2",
+      "author": {
+        "name": "Cucurb IT BV"
+      },
+      "license": "MIT",
+      "keywords": [
+        "audit",
+        "maturity",
+        "modernization",
+        "technical-debt",
+        "production-readiness",
+        "architecture",
+        "scorecard",
+        "gated"
+      ],
+      "category": "code analysis",
+      "strict": false
+    },
+    {
       "name": "implementation-review",
       "source": "./implementation-review",
       "description": "AI-augmented code review skill. Reviews implementations against ANALYSIS documents, project conventions, and security best practices. Produces structured Review Reports for human and AI consumption.",
