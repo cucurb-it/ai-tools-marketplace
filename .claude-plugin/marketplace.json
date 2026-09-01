@@ -14,7 +14,7 @@
   "plugins": [
     {
       "name": "app-maturity-audit",
-      "source": "./",
+      "source": "./app-maturity-audit",
       "description": "AI-powered workflow that audits a codebase's production maturity and modernization needs. Scores ten dimensions against evidence, pauses for human review, and emits a sliced analysis bundle for executive, business, and technical audiences.",
       "version": "26.901.1",
       "author": {
