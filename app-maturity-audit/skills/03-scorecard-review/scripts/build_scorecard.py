@@ -18,11 +18,13 @@ import json
 import pathlib
 import sys
 
-# Default weights. Security, testing, and reliability weigh more because a low
-# score there blocks production-readiness regardless of the other dimensions;
-# performance & architecture weigh up because they drive modernization value.
+# Default weights for the Overall average. Security and adaptability weigh highest:
+# security blocks production-readiness; adaptability is the largest driver of
+# development TCO. These weights affect ONLY the Overall average, not the gate,
+# the modernization pressure, or the TCO signature (those have their own logic).
 DEFAULT_WEIGHTS = {
     "security": 1.5,
+    "adaptability": 1.5,
     "testing": 1.3,
     "reliability": 1.3,
     "performance-scalability": 1.3,
@@ -40,6 +42,34 @@ CRITICAL = {"security", "testing", "reliability"}
 # The "legacy cluster" — low scores here mean high modernization pressure.
 MODERNIZATION_CLUSTER = {
     "architecture", "performance-scalability", "dependency-health", "code-quality",
+    "adaptability",
+}
+
+# Weights for the modernization-pressure signal. Adaptability dominates (cost of
+# change is the largest driver), at double any other cluster input.
+CLUSTER_WEIGHTS = {
+    "adaptability": 2.0,
+    "architecture": 1.0,
+    "performance-scalability": 1.0,
+    "dependency-health": 1.0,
+    "code-quality": 1.0,
+}
+
+# Inputs and weights for the TCO signature (relative cost of ownership). Adaptability
+# is the dominant term at roughly double any other input, because cost of change is
+# the largest slice of software TCO. Security is excluded — it is the readiness lens,
+# not a development-cost driver.
+TCO_WEIGHTS = {
+    "adaptability": 3.0,
+    "architecture": 1.5,
+    "dependency-health": 1.5,
+    "code-quality": 1.5,
+    "performance-scalability": 1.0,
+    "testing": 1.0,
+    "reliability": 1.0,
+    "observability": 1.0,
+    "cicd-deployment": 1.0,
+    "documentation": 1.0,
 }
 
 LEVEL_LABELS = {
@@ -48,6 +78,14 @@ LEVEL_LABELS = {
     2: "Developing",
     3: "Established",
     4: "Optimized",
+}
+
+LEVEL_MEANINGS = {
+    0: "The practice is not present at all.",
+    1: "Ad-hoc, inconsistent, undocumented.",
+    2: "A basic version exists but has real gaps.",
+    3: "Consistent, documented, covers the common cases.",
+    4: "Comprehensive, automated, monitored, continuously improved.",
 }
 
 
@@ -99,9 +137,15 @@ def aggregate(results, weights):
         if gating is not None else []
     )
 
-    # Modernization pressure: average maturity of the legacy cluster, inverted.
+    # Modernization pressure: WEIGHTED maturity of the legacy cluster (adaptability
+    # dominates), inverted. Lower maturity -> higher pressure.
     cluster = [r for r in scored if r["dimension"] in MODERNIZATION_CLUSTER]
-    cluster_avg = sum(r["level"] for r in cluster) / len(cluster) if cluster else None
+    if cluster:
+        cw = sum(CLUSTER_WEIGHTS.get(r["dimension"], 1.0) for r in cluster)
+        cluster_avg = sum(r["level"] * CLUSTER_WEIGHTS.get(r["dimension"], 1.0)
+                          for r in cluster) / cw
+    else:
+        cluster_avg = None
     if cluster_avg is None:
         pressure = None
     elif cluster_avg <= 1.5:
@@ -117,6 +161,26 @@ def aggregate(results, weights):
         if cluster else []
     )
 
+    # TCO signature: relative cost of ownership, weighted so adaptability dominates.
+    # Lower cost-weighted maturity -> higher TCO burden. Relative, not monetary.
+    tco_dims = [r for r in scored if r["dimension"] in TCO_WEIGHTS]
+    if tco_dims:
+        tw = sum(TCO_WEIGHTS[r["dimension"]] for r in tco_dims)
+        tco_maturity = sum(r["level"] * TCO_WEIGHTS[r["dimension"]] for r in tco_dims) / tw
+        if tco_maturity <= 1.5:
+            tco_burden = "High"
+        elif tco_maturity <= 2.5:
+            tco_burden = "Moderate"
+        else:
+            tco_burden = "Low"
+        tco_drivers = sorted(
+            r["dimension"] for r in tco_dims
+            if r["level"] == min(x["level"] for x in tco_dims)
+        )
+    else:
+        tco_maturity = tco_burden = None
+        tco_drivers = []
+
     return {
         "weighted_average": round(weighted, 2),
         "weighted_average_label": band(weighted),
@@ -126,9 +190,75 @@ def aggregate(results, weights):
         "modernization_pressure": pressure,
         "modernization_cluster_avg": round(cluster_avg, 2) if cluster_avg is not None else None,
         "modernization_drivers": cluster_drivers,
+        "tco_burden": tco_burden,
+        "tco_maturity": round(tco_maturity, 2) if tco_maturity is not None else None,
+        "tco_drivers": tco_drivers,
         "scored": scored,
         "not_applicable": na,
     }
+
+
+def compute_insights(agg):
+    """Data-specific, auto-generated reading of the numbers."""
+    scored = agg["scored"]
+    overall = agg["weighted_average"]
+    gate = agg["gating_level"]
+    gating_dims = agg["gating_dimensions"]
+    bullets = []
+
+    crit = [(r["dimension"], r["level"]) for r in scored if r["dimension"] in CRITICAL]
+    if gate is not None and crit:
+        # Spread: is the average masking an acute critical weakness?
+        if overall - gate >= 0.5 and gating_dims:
+            who = ", ".join(f"**{d}**" for d in gating_dims)
+            verb = "is" if len(gating_dims) == 1 else "are"
+            bullets.append(
+                f"The overall average ({overall}) sits above the readiness gate "
+                f"(Level {gate}): {who} {verb} holding trustworthiness below the general "
+                f"maturity level. Read the gate, not the average, as the verdict."
+            )
+        # Leverage: what single move raises the gate the most?
+        crit_levels = sorted({lvl for _, lvl in crit})
+        if len(crit_levels) == 1:
+            bullets.append(
+                f"All critical dimensions sit at Level {gate}; the readiness gate rises "
+                f"only when every one of them does."
+            )
+        else:
+            next_level = min(lvl for _, lvl in crit if lvl > gate)
+            who = ", ".join(f"**{d}**" for d in gating_dims)
+            plural = len(gating_dims) > 1
+            bullets.append(
+                f"**Highest-leverage move:** raising {who} from Level {gate} to "
+                f"Level {next_level} would lift the readiness gate to Level {next_level} "
+                f"in one step ({'those are' if plural else 'that is'} the only critical "
+                f"dimension{'s' if plural else ''} below Level {next_level})."
+            )
+
+    # Confidence caveat (this is a static, code-only audit).
+    lows = sorted(r["dimension"] for r in scored if r.get("confidence") == "low")
+    if lows:
+        many = len(lows) > 1
+        bullets.append(
+            f"Lowest certainty: {', '.join(f'**{d}**' for d in lows)} "
+            f"(confidence low) — check {'their' if many else 'its'} `detail.md` first. "
+            f"All levels are inferred from code, not measured at runtime."
+        )
+    else:
+        bullets.append(
+            "Every level is inferred from code — this is a static audit, so runtime "
+            "properties (especially performance) are estimated, not measured. Confirm "
+            "against each dimension's `detail.md` before acting on a score."
+        )
+    return bullets
+
+
+def _lens(dimension):
+    if dimension in CRITICAL:
+        return "★ gate"
+    if dimension in MODERNIZATION_CLUSTER:
+        return "cluster"
+    return "—"
 
 
 def render_scorecard(agg, weights) -> str:
@@ -142,38 +272,99 @@ def render_scorecard(agg, weights) -> str:
         "",
         "# Scorecard",
         "",
+        "## Levels",
+        "",
+        "The 0–4 scale applied to every dimension:",
+        "",
+        "| Level | Label | Meaning |",
+        "|:---:|-------|---------|",
+        *[f"| {n} | {LEVEL_LABELS[n]} | {LEVEL_MEANINGS[n]} |" for n in range(5)],
+        "",
+        "## Headline",
+        "",
+        f"- **Overall maturity (weighted):** Level {agg['weighted_average']} / 4 "
+        f"— {agg['weighted_average_label']}",
     ]
-    lines.append(
-        f"**Overall maturity (weighted): Level {agg['weighted_average']} / 4 "
-        f"— {agg['weighted_average_label']}**"
-    )
     if agg["gating_level"] is not None:
         gd = ", ".join(agg["gating_dimensions"])
         lines.append(
-            f"**Production-readiness gate (weakest critical dimension): Level "
-            f"{agg['gating_level']} — {agg['gating_level_label']}** ({gd})"
+            f"- **Production-readiness gate (weakest critical dimension):** Level "
+            f"{agg['gating_level']} — {agg['gating_level_label']} ({gd})"
         )
     if agg["modernization_pressure"] is not None:
         md = ", ".join(agg["modernization_drivers"])
         lines.append(
-            f"**Modernization pressure: {agg['modernization_pressure']}** "
-            f"(legacy-cluster avg {agg['modernization_cluster_avg']} / 4; "
-            f"driven by {md})"
+            f"- **Modernization pressure:** {agg['modernization_pressure']} "
+            f"(legacy-cluster avg {agg['modernization_cluster_avg']} / 4; driven by {md})"
         )
-    lines.append("")
-    lines.append("| Dimension | Level | Label | Weight | Confidence | Critical |")
-    lines.append("|-----------|:-----:|-------|:------:|:----------:|:--------:|")
+    if agg.get("tco_burden") is not None:
+        td = ", ".join(agg["tco_drivers"])
+        lines.append(
+            f"- **TCO signature (relative):** {agg['tco_burden']} cost-of-ownership burden "
+            f"(cost-weighted maturity {agg['tco_maturity']} / 4; heaviest drivers {td})"
+        )
+
+    lines += [
+        "",
+        "## How to read this",
+        "",
+        "Four signals answer four different questions — keep them apart:",
+        "",
+        "- **Overall** — the weighted blend of all dimensions. A one-glance summary, "
+        "*not* the verdict: an average can hide an acute problem in a single area.",
+        "- **Readiness gate** — *can you responsibly keep running this as-is?* It is the "
+        "**minimum** of the critical dimensions (security, testing, reliability), so the "
+        "weakest one caps it — not the average.",
+        "- **Modernization pressure** — *how urgently should you act?* From the legacy "
+        "cluster (architecture, performance, dependency-health, code-quality, adaptability), "
+        "weighted so adaptability dominates: the lower they score, the higher the pressure. "
+        "A repo can pass the gate yet carry pressure — safe to run today, but a growing brake.",
+        "- **TCO signature** — *what will it cost to own?* A **relative** (not euro) burden "
+        "from the cost-of-ownership dimensions, weighted so **adaptability dominates**, "
+        "because cost of change is the largest slice of software TCO. A static audit yields "
+        "a relative signature only; actual spend needs infra/licence/effort data fed in.",
+        "",
+        "## What the numbers say",
+        "",
+    ]
+    lines += [f"- {b}" for b in compute_insights(agg)]
+
+    lines += [
+        "",
+        "## Dimensions",
+        "",
+        "| Dimension | Level | Label | Weight | Confidence | Lens |",
+        "|-----------|:-----:|-------|:------:|:----------:|:----:|",
+    ]
     for r in sorted(agg["scored"], key=lambda x: x["level"]):
         d = r["dimension"]
         lines.append(
             f"| {d} | {r['level']} | {LEVEL_LABELS.get(r['level'], '?')} | "
-            f"{weights.get(d, 1.0)} | {r.get('confidence', '—')} | "
-            f"{'★' if d in CRITICAL else ''} |"
+            f"{weights.get(d, 1.0)} | {r.get('confidence', '—')} | {_lens(d)} |"
         )
     for d in agg["not_applicable"]:
-        lines.append(f"| {d} | n/a | Not applicable | — | — | |")
-    lines.append("")
-    lines.append("_Sorted lowest-level first: the top rows are where attention is most needed._")
+        lines.append(f"| {d} | n/a | Not applicable | — | — | — |")
+
+    lines += [
+        "",
+        "_Sorted lowest-level first: the top rows are where attention is most needed._",
+        "",
+        "## Reading the table",
+        "",
+        "- **Weight** affects only the Overall average — it does **not** change the gate "
+        "or the pressure.",
+        "- **★** marks a **critical** dimension (security, testing, reliability) — the "
+        "three that set the readiness gate.",
+        "- **Lens `★ gate`** = a critical dimension; the readiness gate takes their "
+        "**worst** level, not their average.",
+        "- **Lens `cluster`** = a legacy-cluster dimension (architecture, performance, "
+        "dependency-health, code-quality, adaptability); these drive modernization pressure.",
+        "- **Modernization pressure** and the **TCO signature** are cost lenses, weighted "
+        "separately from the Overall (adaptability dominates both); the Overall average uses "
+        "the Weight column shown above.",
+        "- **Confidence** reflects how exhaustively the evidence could be gathered; this "
+        "is a static (code-only) audit, so runtime properties are inferred.",
+    ]
     return "\n".join(lines) + "\n"
 
 
@@ -212,6 +403,9 @@ def main():
     if agg["modernization_pressure"] is not None:
         print(f"Modernization pressure: {agg['modernization_pressure']} "
               f"(drivers: {', '.join(agg['modernization_drivers'])})")
+    if agg.get("tco_burden") is not None:
+        print(f"TCO signature (relative): {agg['tco_burden']} "
+              f"(drivers: {', '.join(agg['tco_drivers'])})")
     print(f"Wrote {out_dir/'scorecard.md'} and {out_dir/'summary.json'}")
 
 

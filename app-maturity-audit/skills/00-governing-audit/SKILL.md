@@ -49,7 +49,7 @@ higher-level criteria become findings and recommendations. No fractional per-dim
 
 ## Dimensions
 
-Ten dimensions. Their rubrics live with the dimension-analysis skill
+Eleven dimensions. Their rubrics live with the dimension-analysis skill
 (`skills/02-dimension-analysis/references/`).
 
 | Dimension | Critical | Cluster |
@@ -58,6 +58,7 @@ Ten dimensions. Their rubrics live with the dimension-analysis skill
 | Security | ★ | |
 | Testing | ★ | |
 | Reliability | ★ | |
+| Adaptability | | ★ |
 | CI/CD & deployment | | |
 | Observability | | |
 | Dependency health | | ★ |
@@ -65,10 +66,22 @@ Ten dimensions. Their rubrics live with the dimension-analysis skill
 | Architecture | | ★ |
 | Documentation | | |
 
-**Critical** dimensions drive the readiness gate. **Cluster** dimensions (the legacy cluster)
-drive modernization pressure. The scorer (`build_scorecard.py`, owned by the scorecard-review
-skill) computes three signals — weighted average, readiness gate (min of critical dimensions),
-and modernization pressure (from the cluster). Never hand-compute these.
+**A ★ marks membership.** **Critical** dimensions (security, testing, reliability) drive the
+readiness gate. **Cluster** dimensions (the legacy cluster) drive modernization pressure.
+**Adaptability** — the inverse of a system's inherent resistance to change — is the largest
+single driver of development TCO and a proxy for estimate reliability; it is scored
+higher-is-better (high = low resistance) and dominates both the pressure and TCO signals.
+
+The scorer (`build_scorecard.py`, owned by the scorecard-review skill) computes **four**
+signals — never hand-compute these: (1) **weighted average** overall maturity (uses the
+Weight column); (2) **production-readiness gate**, the minimum among critical dimensions;
+(3) **modernization pressure**, from the legacy cluster weighted so adaptability dominates;
+(4) **TCO signature**, a *relative* cost-of-ownership burden weighted so adaptability
+dominates (static audits give a relative signature, not euros).
+
+The **System Profile** captured in recon (composition, tiers, topology, coupling, data
+architecture) is a recorded descriptor, not a scored dimension; it calibrates the rubrics and
+anchors the TCO narrative.
 
 ## Stages & stage-skill map
 

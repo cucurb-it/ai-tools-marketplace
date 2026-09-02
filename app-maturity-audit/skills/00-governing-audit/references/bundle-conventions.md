@@ -239,6 +239,10 @@ generated from the seed. Generate them **only after the review gate**.
 - **Next:** <action> (<dimension>)
 - **Strategic:** <action> (<dimension>)
 
+## TCO & System Profile
+- Composition (from recon): <decomposition style, tiers, coupling, data arch>.
+- TCO signature <High/Moderate/Low> (relative); heaviest driver **adaptability** — resistance hotspots: <modules with large ripple radius>.
+
 ## Methodology & limitations
 - Static (code-only) audit; performance inferred, not measured. <what would need profiling>.
 ```
@@ -283,6 +287,11 @@ consequence only; **no invented solution, timeline, or cost** — those are not 
 
 ## Business Consequence
 - <what each weak area costs or prevents if left unaddressed — in budget-owner terms>.
+
+## Cost of Ownership (relative)
+- System shape (from recon System Profile): <one line>.
+- TCO signature: <High/Moderate/Low>, driven by <drivers>. **Adaptability** is the largest driver — <hotspot>: roadmap items touching it will tend to run over their estimates, predictably in one direction. Discount budget/timeline confidence there.
+- Relative signature only; monetary figures are out of scope.
 
 ## Scope Note
 - Static assessment. Solution, cost, and timeline are deliberately out of scope.

@@ -18,8 +18,9 @@ three files.
 
 ## Rubrics (this skill's `references/`)
 
-`performance-scalability`, `security`, `testing`, `reliability`, `cicd-deployment`,
-`observability`, `dependency-health`, `code-quality`, `architecture`, `documentation`.
+`performance-scalability`, `security`, `testing`, `reliability`, `adaptability`,
+`cicd-deployment`, `observability`, `dependency-health`, `code-quality`, `architecture`,
+`documentation`.
 
 ## Per-dimension procedure
 
