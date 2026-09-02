@@ -154,7 +154,7 @@ Uses SCREAMING_SNAKE_CASE to match ANALYSIS and REVIEW documents:
 
 ## Version
 
-Current version: **26.902.1**  
+Current version: **26.902.2**  
 Versioning scheme: `YY.MDD.N` (date-based)
 
 ---
