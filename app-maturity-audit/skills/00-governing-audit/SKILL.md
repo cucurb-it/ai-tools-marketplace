@@ -40,7 +40,7 @@ refers back to it. Read it before creating or writing any bundle file.
 |-------|-------|---------|
 | 0 | Absent | Not present at all. |
 | 1 | Initial | Ad-hoc, inconsistent, undocumented. |
-| 2 | Developing | Basic version exists but has real gaps. |
+| 2 | Emerging | Basic version exists but has real gaps. |
 | 3 | Established | Consistent, documented, covers the common cases. |
 | 4 | Optimized | Comprehensive, automated, monitored, improved. |
 

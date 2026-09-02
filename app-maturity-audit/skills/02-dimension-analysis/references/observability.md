@@ -21,7 +21,7 @@ Mark `not_applicable` for a pure offline library with no operational surface, ra
 
 **Level 1 — Initial.** A logger is used but output is unstructured and levels are inconsistent. No metrics or tracing. No error tracking. Debugging prod means reading raw log dumps.
 
-**Level 2 — Developing.** Structured logging with levels across most of the code, and an error tracker wired up. Perhaps some basic metrics. No distributed tracing. You can reconstruct most incidents after the fact.
+**Level 2 — Emerging.** Structured logging with levels across most of the code, and an error tracker wired up. Perhaps some basic metrics. No distributed tracing. You can reconstruct most incidents after the fact.
 
 **Level 3 — Established.** Structured logs with correlation/request IDs, application metrics for the key indicators, error tracking, and health endpoints. Alerting and dashboards likely exist (confirm out-of-band). An operator can answer "is it healthy, and if not where does it hurt?"
 

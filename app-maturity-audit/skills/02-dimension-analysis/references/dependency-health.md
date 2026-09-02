@@ -21,7 +21,7 @@ This overlaps Security but asks a different question: Security cares about *know
 
 **Level 1 — Initial.** Lockfile present but dependencies drifting years behind; some deprecated. Runtime near or at EOL. No update process — things are upgraded only when something breaks.
 
-**Level 2 — Developing.** Lockfile committed; most dependencies within a reasonable window though some lag; runtime supported. Updates happen manually and irregularly. No license review.
+**Level 2 — Emerging.** Lockfile committed; most dependencies within a reasonable window though some lag; runtime supported. Updates happen manually and irregularly. No license review.
 
 **Level 3 — Established.** Dependencies current within a sane window, lockfile enforced in CI, runtime comfortably within support. A real (if manual) update cadence exists. Licenses have been considered.
 

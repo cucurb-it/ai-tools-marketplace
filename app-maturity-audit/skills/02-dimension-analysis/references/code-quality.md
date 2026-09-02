@@ -20,7 +20,7 @@ Scope note: this dimension is about **local** quality (readability, complexity, 
 
 **Level 1 — Initial.** Maybe a formatter, not enforced. Style drifts across the codebase. Real complexity and duplication hotspots. Typing sparse or ignored.
 
-**Level 2 — Developing.** Linter and formatter configured and run locally; style mostly consistent. Some complexity/duplication hotspots remain. Typing present but partial. Readable in the main, rough at the edges.
+**Level 2 — Emerging.** Linter and formatter configured and run locally; style mostly consistent. Some complexity/duplication hotspots remain. Typing present but partial. Readable in the main, rough at the edges.
 
 **Level 3 — Established.** Linting and formatting **enforced in CI**; type checking enforced where the language supports it. Complexity generally controlled; little duplication; consistent conventions. A new contributor can read and change code with confidence.
 

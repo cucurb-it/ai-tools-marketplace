@@ -75,7 +75,7 @@ TCO_WEIGHTS = {
 LEVEL_LABELS = {
     0: "Absent",
     1: "Initial",
-    2: "Developing",
+    2: "Emerging",
     3: "Established",
     4: "Optimized",
 }

@@ -50,7 +50,7 @@ three files.
 {
   "dimension": "security",
   "level": 2,
-  "level_label": "Developing",
+  "level_label": "Emerging",
   "confidence": "high",
   "not_applicable": false,
   "evidence": [{ "observation": "...", "path": "..." }],

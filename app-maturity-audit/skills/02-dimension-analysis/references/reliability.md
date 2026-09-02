@@ -23,7 +23,7 @@ Absence after a genuine search is evidence; lower `confidence` where you couldn'
 
 **Level 1 — Initial.** Scattered `try/except` but inconsistent, with bare catches hiding problems. No timeouts or retries. Obvious single points of failure unaddressed.
 
-**Level 2 — Developing.** Consistent error handling on the main paths; some timeouts; a basic health check; resource cleanup mostly via context managers. Retries and degradation are spotty. Survives the common failures but not the awkward ones.
+**Level 2 — Emerging.** Consistent error handling on the main paths; some timeouts; a basic health check; resource cleanup mostly via context managers. Retries and degradation are spotty. Survives the common failures but not the awkward ones.
 
 **Level 3 — Established.** Errors handled and surfaced (logged/tracked, not swallowed); timeouts **and** retries-with-backoff on external calls; health/readiness endpoints; graceful handling when a dependency is down; transactions where needed; clean startup/shutdown.
 

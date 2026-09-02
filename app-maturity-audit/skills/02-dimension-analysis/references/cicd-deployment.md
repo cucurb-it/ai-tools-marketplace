@@ -21,7 +21,7 @@ Calibrate to context — a small internal app needs less than a multi-service pl
 
 **Level 1 — Initial.** CI runs something (lint or build) but doesn't reliably gate merges. Deploys are manual and tribal-knowledge. Maybe a Dockerfile, but no orchestration or environment separation.
 
-**Level 2 — Developing.** CI builds and tests on PRs; the app is containerized. Deployment is scripted but has manual steps. Typically one shared environment. Rollback means manually redeploying an older image. Migrations semi-automated.
+**Level 2 — Emerging.** CI builds and tests on PRs; the app is containerized. Deployment is scripted but has manual steps. Typically one shared environment. Rollback means manually redeploying an older image. Migrations semi-automated.
 
 **Level 3 — Established.** CI gates merges. Automated deploy to a staging environment and then production, with prod/staging/dev separated. IaC covers the core infrastructure. Migrations run in the pipeline. Rollback is documented and has been exercised.
 

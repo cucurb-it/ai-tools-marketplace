@@ -18,7 +18,7 @@ Assess whether someone other than the original author can understand, run, opera
 
 **Level 1 — Initial.** A minimal README with incomplete or outdated setup steps. No architecture or API docs. Getting started requires asking someone.
 
-**Level 2 — Developing.** A README with setup steps that actually work, and some inline documentation. Scattered notes exist, but no architecture overview and no runbooks. A determined newcomer can get running.
+**Level 2 — Emerging.** A README with setup steps that actually work, and some inline documentation. Scattered notes exist, but no architecture overview and no runbooks. A determined newcomer can get running.
 
 **Level 3 — Established.** README plus working onboarding, an architecture overview, and API docs where relevant. Docs are largely current. A new developer can become productive without shoulder-tapping the author.
 

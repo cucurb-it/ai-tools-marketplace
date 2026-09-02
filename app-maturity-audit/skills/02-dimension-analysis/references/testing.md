@@ -23,7 +23,7 @@ Absence after a genuine search is evidence; lower `confidence` if a large monore
 
 **Level 1 — Initial.** A handful of tests exist where someone happened to add them. Not run in CI (or not gating). Happy-path only; coverage unknown. Provides little real protection.
 
-**Level 2 — Developing.** A genuine unit suite that runs, and perhaps runs in CI though it may not block merge. Integration tests sparse. Coverage may be measured but has no enforced floor. Some critical paths remain untested. Useful, but with real holes.
+**Level 2 — Emerging.** A genuine unit suite that runs, and perhaps runs in CI though it may not block merge. Integration tests sparse. Coverage may be measured but has no enforced floor. Some critical paths remain untested. Useful, but with real holes.
 
 **Level 3 — Established.** Unit and integration tests cover the common and critical paths. Tests run in CI and **block merge** on failure. Coverage is measured with a sensible floor. The suite is reasonably stable. A reviewer could trust a green build.
 

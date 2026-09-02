@@ -22,7 +22,7 @@ Distinguish **local** code quality (that's the Code Quality dimension) from **st
 
 **Level 1 — Initial.** Some structure, but boundaries leak badly. Large god modules. Config hardcoded. Hard to change one thing without touching many; onboarding to "where does X live" is painful.
 
-**Level 2 — Developing.** Recognizable layering with real leaks. Separation of concerns mostly present; config externalized. Coupling is manageable but has clear hotspots. Workable, with friction.
+**Level 2 — Emerging.** Recognizable layering with real leaks. Separation of concerns mostly present; config externalized. Coupling is manageable but has clear hotspots. Workable, with friction.
 
 **Level 3 — Established.** Clear boundaries and separation of concerns; low coupling, high cohesion; configuration externalized (12-factor); consistent patterns. A new feature has an obvious home, and changes stay local.
 

@@ -25,7 +25,7 @@ Absence of a facet after a genuine search is evidence — but for a very large o
 
 **Level 1 — Initial.** A few efficiency measures exist where an individual happened to add them, but the common paths still show N+1s, missing indexes, or unbounded queries. Little/no caching. Mostly single-instance assumptions (local session/state). No performance testing. Scaling would mean rework.
 
-**Level 2 — Developing.** Core queries are reasonable (indexed, no glaring N+1 on hot paths), pagination exists on large collections, and some caching is in place. The app is broadly stateless or close to it, so it *could* scale horizontally with modest effort. Heavy work is sometimes backgrounded. But there are real gaps, and performance is not systematically measured.
+**Level 2 — Emerging.** Core queries are reasonable (indexed, no glaring N+1 on hot paths), pagination exists on large collections, and some caching is in place. The app is broadly stateless or close to it, so it *could* scale horizontally with modest effort. Heavy work is sometimes backgrounded. But there are real gaps, and performance is not systematically measured.
 
 **Level 3 — Established.** Efficient data access is the norm (indexes, no N+1 on hot paths, bounded/paginated queries), a coherent caching strategy exists with sensible invalidation, and the app is genuinely stateless so it scales horizontally behind a load balancer. Long/expensive work runs on background workers/queues. Timeouts and pooling are configured. Some performance testing or budgets exist. A reviewer could trust it to handle its expected load.
 
